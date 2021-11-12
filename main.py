@@ -1,25 +1,63 @@
 from tkinter import *
+import pyshorteners
+import re
 root = Tk()
 root.title("Link Shortener")
 root.geometry("500x500")
 
 
+def isValidURL(str):
+
+    # Regex to check valid URL
+    regex = ("((http|https)://)(www.)?" +
+             "[a-zA-Z0-9@:%._\\+~#?&//=]" +
+             "{2,256}\\.[a-z]" +
+             "{2,6}\\b([-a-zA-Z0-9@:%" +
+             "._\\+~#?&//=]*)")
+
+    p = re.compile(regex)
+
+    if (str == None):
+        return False
+    if(re.search(p, str)):
+        return True
+    else:
+        return False
+
+
 def shorten():
-    if shorty.get():
-        shorty.delete(0, END)
+    if shortened_link.get():
+        shortened_link.delete(0, END)
+
+    if original_link.get():
+
+        if isValidURL(original_link.get()) == True:
+
+            # convert to tinyurl
+            try:
+                url = pyshorteners.Shortener().tinyurl.short(original_link.get())
+                shortened_link.insert(END, url)
+            # reverse url
+                print(pyshorteners.Shortener().tinyurl.expand(url))
+            except:
+                raise pyshorteners.exceptions.ShorteningErrorException(
+                    message=None)
+        else:
+            shortened_link.insert(END, "Invalid Input Url")
 
 
-my_label = Label(root, text="Enter link to shorten", font=("Helvetica", 30))
-my_label.pack(pady=20)
-my_entry = Entry(root, font=("Helvetica", 24))
-my_entry.pack(pady=20)
-my_button = Button(root, text="Shorten Link",
-                   command=shorten, font=("Helvetica", 24))
-my_button.pack(pady=20)
+Title_label = Label(root, text="Enter link to shorten", font=("Helvetica", 24))
+Title_label.pack(pady=20)
+original_link = Entry(root, font=("Helvetica", 24))
+original_link.pack(pady=20)
+button_shorten = Button(root, text="Shorten Link",
+                        command=shorten, font=("Helvetica", 15))
+button_shorten.pack(pady=20)
 
-shorty_label = Label(root, text="Shortened Link", font=("Helvetica", 20))
-shorty_label.pack(pady=50)
+output_subtitle = Label(root, text="Shortened Link", font=("Helvetica", 20))
+output_subtitle.pack(pady=50)
 
-shorty = Entry(root, font=("Helvetica", 22), justify=CENTER)
-shorty.pack(pady=8)
+shortened_link = Entry(root, font=("Helvetica", 22), justify=CENTER,
+                       width=30, bd=0, bg="systembuttonface")
+shortened_link.pack(pady=8)
 root.mainloop()
